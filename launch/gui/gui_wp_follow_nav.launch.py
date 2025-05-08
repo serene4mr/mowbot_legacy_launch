@@ -10,7 +10,7 @@ from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
 
-    nav2_params = "/mowbot_legacy_data/__params__.yaml"
+    nav2_params = "/mowbot_legacy_data/__nav_params__.yaml"
     waypoints_file = "/mowbot_legacy_data/__waypoints__.yaml"
     
     configured_params = RewrittenYaml(
