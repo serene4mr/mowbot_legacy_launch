@@ -8,7 +8,21 @@
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
+  
+  <!-- Mapviz dependencies -->
+  <!-- <depend>mapviz</depend>
+  <depend>mapviz_plugins</depend>
+  <depend>tile_map</depend>
+  <depend>multires_image</depend> -->
+  
+  <!-- Common ROS2 dependencies -->
+  <!-- <depend>rclcpp</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend> -->
+  
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
