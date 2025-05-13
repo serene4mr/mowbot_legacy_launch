@@ -123,7 +123,7 @@ def generate_launch_description():
 
         IncludeLaunchDescription(
             PathJoinSubstitution(
-                [FindPackageShare('mowbot_legacy_launch'), 'launch', 'main', 'components', 'sensors.launch.py']
+                [FindPackageShare('mowbot_legacy_launch'), 'launch', 'gui', 'components', 'sensors.launch.py']
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
