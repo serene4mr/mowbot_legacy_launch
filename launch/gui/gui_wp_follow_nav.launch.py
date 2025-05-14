@@ -1,8 +1,7 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-from launch.conditions import IfCondition
+from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import RewrittenYaml
@@ -12,6 +11,7 @@ def generate_launch_description():
 
     nav2_params = "/mowbot_legacy_data/__nav_params__.yaml"
     waypoints_file = "/mowbot_legacy_data/__waypoints__.yaml"
+    cmdvel_scaler_params = "/mowbot_legacy_data/__cmdvel_scaler_params__.yaml"
     
     configured_params = RewrittenYaml(
         source_file=nav2_params, 
@@ -49,5 +49,16 @@ def generate_launch_description():
                 }
             ],
         ),
+        
+        Node(
+            package='cmdvel_scaler',
+            executable='cmdvel_scaler_node',
+            name='cmdvel_scaler_node',
+            output='screen',
+            parameters=[
+                cmdvel_scaler_params,
+            ]
+                
+        )
     ])
 
