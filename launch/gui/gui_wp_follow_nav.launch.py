@@ -57,6 +57,9 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 cmdvel_scaler_params,
+            ],
+            remappings=[
+                ('cmd_vel', 'mb_cmd_vel')
             ]
                 
         )
