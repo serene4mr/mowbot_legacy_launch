@@ -78,6 +78,12 @@ ARGS = [
         default_value='false',
         description='Whether to launch Robot Localization'
     ),
+    
+    DeclareLaunchArgument(
+        'ktserver',
+        default_value='false',
+        description='Whether to launch kt_server_bridge'
+    ),
 ]
 
 def generate_launch_description():
@@ -89,6 +95,8 @@ def generate_launch_description():
     rviz_config_path = PathJoinSubstitution(
         [FindPackageShare('mowbot_legacy_launch'), 'rviz', 'mowbot.rviz']
     )
+    
+    kt_server_bridge_config_path = "/mowbot_legacy_data/__kt_server_bridge_params__.yaml"
 
     return LaunchDescription(ARGS + [  
         
@@ -157,6 +165,20 @@ def generate_launch_description():
             name='sensor_monitor',
             output='screen',
             condition=IfCondition(LaunchConfiguration('sensormon')),
+        ),
+        
+        Node(
+            package='kt_server_bridge',
+            executable='kt_server_client_node',
+            name='kt_server_client_node',
+            output='screen',
+            parameters=[kt_server_bridge_config_path],
+            remappings=[
+                ('/gps/fix', '/gps/fix_filtered'),
+                ('/odometry/filtered', '/odometry/filtered'),
+                ('/heading', '/gps/heading'),
+            ],
+            condition=IfCondition(LaunchConfiguration('ktserver')),
         ),
 
         IncludeLaunchDescription(
