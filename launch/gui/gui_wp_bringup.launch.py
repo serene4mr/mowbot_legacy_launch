@@ -121,7 +121,9 @@ def generate_launch_description():
 
         IncludeLaunchDescription(
             PathJoinSubstitution(
-                [FindPackageShare('mowbot_bringup'), 'launch', 'twist_control.launch.py']
+                [FindPackageShare('mowbot_legacy_launch'), 
+                 'launch', 'gui', 'components',
+                 'twist_control.launch.py']
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
