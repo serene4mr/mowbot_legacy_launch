@@ -21,7 +21,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PathJoinSubstitution(
                 [FindPackageShare('mowbot_legacy_launch'), 
-                'launch', 'main', 'components', 'rl_dual_ekf_navsat.launch.py']
+                'launch', 'gui', 'components', 'rl_dual_ekf_navsat.launch.py']
             ),
         ),
     ])

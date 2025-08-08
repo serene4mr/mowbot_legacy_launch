@@ -1,105 +1,61 @@
+#!/usr/bin/env python3
+
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.conditions import IfCondition
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+import yaml
+import os
+
+# ---- Configurable paths ----
+DEFAULT_CFG_PATH = '/mowbot_legacy_data/robot_config.yaml'   
+
+def get_robot_model_from_yaml(config_path=DEFAULT_CFG_PATH):
+    # Reads robot_model from YAML config; defaults to 'mowbot'
+    try:
+        with open(config_path) as f:
+            config = yaml.safe_load(f)
+        robot_model = config.get('robot_model', 'mowbot')
+    except Exception as e:
+        robot_model = 'mowbot'
+    return robot_model
+
+# ---- Declare launch arguments ----
 ARGS = [
-    DeclareLaunchArgument(
-        'namespace',
-        default_value='',
-        description='Namespace'
-    ),
-
-    DeclareLaunchArgument(
-        'rviz',
-        default_value='false',
-        description='Whether to start rviz'
-    ),
-
-    DeclareLaunchArgument(
-        'imu',
-        default_value='false',
-        description='Whether to start the imu'
-    ),
-
-    DeclareLaunchArgument(
-        'laser',
-        default_value='false',
-        description='Whether to start the laser'
-    ),
-
-    DeclareLaunchArgument(
-        'dcam',
-        default_value='false',
-        description='Whether to start the depth camera'
-    ),
-
-    DeclareLaunchArgument(
-        name='madgwick',
-        default_value='false',
-        description='Use madgwick to fuse imu and magnetometer'
-    ),
-
-    DeclareLaunchArgument(
-        name='uros',
-        default_value='false',
-        description='Use micro-ros'
-    ),
-    
-    DeclareLaunchArgument(
-        'ntrip',
-        default_value='false',
-        description='Whether to start the ntrip client'
-    ),
-
-    DeclareLaunchArgument(
-        'gps',
-        default_value='false',
-        description='Whether to start the gps'
-    ),
-
-    DeclareLaunchArgument(
-        'foxglove',
-        default_value='false',
-        description='Whether to start the foxglove'
-    ),
-
-    DeclareLaunchArgument(
-        'sensormon',
-        default_value='false',
-        description='Whether to start the sensor monitor'
-    ),
-    
-    DeclareLaunchArgument(
-        'rl',
-        default_value='false',
-        description='Whether to launch Robot Localization'
-    ),
-    
-    DeclareLaunchArgument(
-        'ktserver',
-        default_value='false',
-        description='Whether to launch kt_server_bridge'
-    ),
+    DeclareLaunchArgument('namespace',     default_value='',          description='Namespace'),
+    DeclareLaunchArgument('rviz',          default_value='false',     description='Whether to start rviz'),
+    DeclareLaunchArgument('imu',           default_value='false',     description='Whether to start the imu'),
+    DeclareLaunchArgument('laser',         default_value='false',     description='Whether to start the laser'),
+    DeclareLaunchArgument('dcam',          default_value='false',     description='Whether to start the depth camera'),
+    DeclareLaunchArgument('madgwick',      default_value='false',     description='Use madgwick to fuse imu and magnetometer'),
+    DeclareLaunchArgument('uros',          default_value='false',     description='Use micro-ros'),
+    DeclareLaunchArgument('ntrip',         default_value='false',     description='Whether to start the ntrip client'),
+    DeclareLaunchArgument('gps',           default_value='false',     description='Whether to start the gps'),
+    DeclareLaunchArgument('foxglove',      default_value='false',     description='Whether to start the foxglove'),
+    DeclareLaunchArgument('sensormon',     default_value='false',     description='Whether to start the sensor monitor'),
+    DeclareLaunchArgument('rl',            default_value='false',     description='Whether to launch Robot Localization'),
 ]
 
 def generate_launch_description():
-
+    # Paths
     extra_config_path = PathJoinSubstitution(
         [FindPackageShare('mowbot_legacy_launch'), 'config', 'extra.yaml']
     )
-
     rviz_config_path = PathJoinSubstitution(
         [FindPackageShare('mowbot_legacy_launch'), 'rviz', 'mowbot.rviz']
     )
-    
-    kt_server_bridge_config_path = "/mowbot_legacy_data/__kt_server_bridge_params__.yaml"
+    # ---- Load robot model from config file ----
+    robot_model = get_robot_model_from_yaml(config_path=DEFAULT_CFG_PATH)
 
-    return LaunchDescription(ARGS + [  
-        
+    # Log info for clarity
+    log_model = LogInfo(msg=[f"[mowbot_legacy_launch] Using robot model: {robot_model} (config: {DEFAULT_CFG_PATH})"])
+
+    ld = [
+        log_model,
+
         Node(
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -115,15 +71,14 @@ def generate_launch_description():
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
-                'use_sim_time': 'false'
+                'use_sim_time': 'false',
+                'model': robot_model
             }.items()
         ),
 
         IncludeLaunchDescription(
             PathJoinSubstitution(
-                [FindPackageShare('mowbot_legacy_launch'), 
-                 'launch', 'gui', 'components',
-                 'twist_control.launch.py']
+                [FindPackageShare('mowbot_legacy_launch'), 'launch', 'gui', 'components', 'twist_control.launch.py']
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
@@ -133,7 +88,8 @@ def generate_launch_description():
 
         IncludeLaunchDescription(
             PathJoinSubstitution(
-                [FindPackageShare('mowbot_legacy_launch'), 'launch', 'gui', 'components', 'sensors.launch.py']
+                [FindPackageShare('mowbot_legacy_launch'), 
+                 'launch', 'gui', 'components', 'sensors.launch.py']
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
@@ -159,7 +115,6 @@ def generate_launch_description():
             ]
         ),
 
-        # utilities
         Node(
             namespace=LaunchConfiguration('namespace'),
             package='py_mowbot_utils',
@@ -167,20 +122,6 @@ def generate_launch_description():
             name='sensor_monitor',
             output='screen',
             condition=IfCondition(LaunchConfiguration('sensormon')),
-        ),
-        
-        Node(
-            package='kt_server_bridge',
-            executable='kt_server_client_node',
-            name='kt_server_client_node',
-            output='screen',
-            parameters=[kt_server_bridge_config_path],
-            remappings=[
-                ('/gps/fix', '/gps/fix_filtered'),
-                ('/odometry/filtered', '/odometry/filtered'),
-                ('/heading', '/gps/heading'),
-            ],
-            condition=IfCondition(LaunchConfiguration('ktserver')),
         ),
 
         IncludeLaunchDescription(
@@ -191,7 +132,7 @@ def generate_launch_description():
         ),
 
         Node(
-            namespace = LaunchConfiguration('namespace'),
+            namespace=LaunchConfiguration('namespace'),
             package='rviz2',
             executable='rviz2',
             name='rviz2',
@@ -200,12 +141,12 @@ def generate_launch_description():
             arguments=['-d', rviz_config_path]
         ),
         
-        # robot localization
         IncludeLaunchDescription(
             PathJoinSubstitution(
-                [FindPackageShare('mowbot_legacy_launch'), 
-                'launch', 'main', 'components', 'rl_dual_ekf_navsat.launch.py']
+                [FindPackageShare('mowbot_legacy_launch'), 'launch', 'gui', 'components', 'rl_dual_ekf_navsat.launch.py']
             ),
             condition=IfCondition(LaunchConfiguration("rl"))
         ),
-    ])
+    ]
+
+    return LaunchDescription(ARGS + ld)

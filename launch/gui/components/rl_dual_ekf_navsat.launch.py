@@ -11,7 +11,9 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     rlgps_config_path = PathJoinSubstitution(
-        [FindPackageShare('mowbot_legacy_launch'), 'config', 'dual_ekf_gps_params.yaml']
+        [FindPackageShare('mowbot_legacy_launch'), 
+         'config', 
+         'dual_ekf_gps_params.yaml']
     )
 
     return LaunchDescription([  
@@ -82,7 +84,6 @@ def generate_launch_description():
                 #output
                 ("odometry/gps", "odom/gps"),
                 ("gps/filtered", "gps/fix_filtered"),
-    
             ]
         ),
     ])

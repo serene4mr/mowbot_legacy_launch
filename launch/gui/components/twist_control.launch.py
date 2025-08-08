@@ -24,7 +24,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_teleop_joy',
-            default_value='true',
+            default_value='false',
             description='Use teleop joy'
         ),
 

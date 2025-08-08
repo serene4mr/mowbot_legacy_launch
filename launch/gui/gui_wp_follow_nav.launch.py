@@ -49,19 +49,5 @@ def generate_launch_description():
                 }
             ],
         ),
-        
-        # Node(
-        #     package='cmdvel_scaler',
-        #     executable='cmdvel_scaler_node',
-        #     name='cmdvel_scaler_node',
-        #     output='screen',
-        #     parameters=[
-        #         cmdvel_scaler_params,
-        #     ],
-        #     remappings=[
-        #         ('cmd_vel', 'cmd_vel')
-        #     ]
-                
-        # )
     ])
 
